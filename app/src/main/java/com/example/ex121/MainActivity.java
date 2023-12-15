@@ -2,6 +2,7 @@ package com.example.ex121;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 /**
@@ -12,10 +13,17 @@ import android.os.Bundle;
  * @since 28/11/2023
  */
 public class MainActivity extends AppCompatActivity {
+    SQLiteDatabase db;
+    HelperDB hlp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Creates the database
+        hlp = new HelperDB(this);
+        db = hlp.getWritableDatabase();
+        db.close();
     }
 }
