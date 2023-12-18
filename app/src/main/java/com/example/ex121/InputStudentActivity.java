@@ -12,14 +12,14 @@ import android.os.Bundle;
  * @version	1
  * @since 28/11/2023
  */
-public class MainActivity extends AppCompatActivity {
+public class InputStudentActivity extends AppCompatActivity {
     SQLiteDatabase db;
     HelperDB hlp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_input_student);
 
         // Creates the database
         hlp = new HelperDB(this);
