@@ -57,6 +57,11 @@ public class InputStudentActivity extends AppCompatActivity {
         cv = new ContentValues();
     }
 
+    /**
+     * This function checks if all the fields are full, and asks the user if he wants to save
+     * the student data or not(with alert dialog).
+     * @param view The button that was clicked in order to save the student data.
+     */
     public void saveStudent(View view) {
         if(!areEmptyFields()) {
             showAlertDialog();
@@ -66,12 +71,17 @@ public class InputStudentActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This function shows an alert dialog which asks the user if he wants to save the student data.
+     * According to the user's response, it saves or not saves the data in the database.
+     */
     public void showAlertDialog() {
         adb = new AlertDialog.Builder(this);
         adb.setCancelable(false);
         adb.setTitle("Add New Student");
         adb.setMessage("Do you want to add the new student?");
 
+        // Saves in the database
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -79,6 +89,7 @@ public class InputStudentActivity extends AppCompatActivity {
             }
         });
 
+        // Doesn't save
         adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -90,6 +101,9 @@ public class InputStudentActivity extends AppCompatActivity {
         ad.show();
     }
 
+    /**
+     * This function saves the values of current student in the database students table.
+     */
     public void saveFieldsToDb() {
         cv.clear();
 
@@ -112,6 +126,10 @@ public class InputStudentActivity extends AppCompatActivity {
         Toast.makeText(this, "Added new student!", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * This function checks if at least one of the edit texts values is empty.
+     * @return Whether at least one of the edit texts values is empty, or not.
+     */
     public boolean areEmptyFields() {
         return (etStudName.getText().toString().equals("")) ||
                 (etAddress.getText().toString().equals("")) ||
