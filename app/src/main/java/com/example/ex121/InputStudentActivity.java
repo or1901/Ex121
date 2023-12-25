@@ -1,12 +1,16 @@
 package com.example.ex121;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,6 +30,7 @@ public class InputStudentActivity extends AppCompatActivity {
     AlertDialog.Builder adb;
     AlertDialog ad;
     ContentValues cv;
+    Intent si;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,5 +144,34 @@ public class InputStudentActivity extends AppCompatActivity {
                 (etMomPhone.getText().toString().equals("")) ||
                 (etDadName.getText().toString().equals("")) ||
                 (etDadPhone.getText().toString().equals(""));
+    }
+
+    /**
+     * This function presents the options menu for moving between activities.
+     * @param menu the options menu in which you place your items.
+     * @return true in order to show the menu, otherwise false.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * This function reacts to the user choice in the options menu - it moves to the chosen
+     * activity from the menu.
+     * @param item the menu item that was selected.
+     * @return must return true for the menu to react.
+     */
+    public boolean onOptionsItemSelected(@NonNull MenuItem item){
+        int id = item.getItemId();
+
+        if(id == R.id.menuAddGrade){
+            si = new Intent(this, InputGradeActivity.class);
+            startActivity(si);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
