@@ -63,16 +63,16 @@ public class InputStudentActivity extends AppCompatActivity {
     }
 
     /**
-     * This function checks if all the fields are full, and asks the user if he wants to save
-     * the student data or not(with alert dialog).
+     * This function checks if the field of the student name is full, and asks the user if he wants
+     * to save the student data or not(with alert dialog).
      * @param view The button that was clicked in order to save the student data.
      */
     public void saveStudent(View view) {
-        if(!areEmptyFields()) {
+        if(!isEmptyName()) {
             showAlertDialog();
         }
         else {
-            Toast.makeText(this, "There is an empty field!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Enter at least student name!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -132,18 +132,11 @@ public class InputStudentActivity extends AppCompatActivity {
     }
 
     /**
-     * This function checks if at least one of the edit texts values is empty.
-     * @return Whether at least one of the edit texts values is empty, or not.
+     * This function checks if the edit text of the student name is empty.
+     * @return Whether the edit text of the student name is empty.
      */
-    public boolean areEmptyFields() {
-        return (etStudName.getText().toString().equals("")) ||
-                (etAddress.getText().toString().equals("")) ||
-                (etStudPhone.getText().toString().equals("")) ||
-                (etHomePhone.getText().toString().equals("")) ||
-                (etMomName.getText().toString().equals("")) ||
-                (etMomPhone.getText().toString().equals("")) ||
-                (etDadName.getText().toString().equals("")) ||
-                (etDadPhone.getText().toString().equals(""));
+    public boolean isEmptyName() {
+        return (etStudName.getText().toString().equals(""));
     }
 
     /**
