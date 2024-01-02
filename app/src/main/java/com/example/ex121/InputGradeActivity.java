@@ -6,21 +6,27 @@ import static com.example.ex121.Students.STUDENT_NAME;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class InputGradeActivity extends AppCompatActivity {
+public class InputGradeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     SQLiteDatabase db;
     HelperDB hlp;
     Cursor crsr;
@@ -28,6 +34,11 @@ public class InputGradeActivity extends AppCompatActivity {
     ArrayAdapter adp;
     ArrayList<String> namesTbl;
     ArrayList<Integer> idsTbl;
+    int selectedStudentId;
+    EditText etGrade, etSubject, etWorkType, etQuarter;
+    ContentValues cv;
+    AlertDialog.Builder adb;
+    AlertDialog ad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +54,19 @@ public class InputGradeActivity extends AppCompatActivity {
      */
     private void initAll() {
         spinNames = findViewById(R.id.spinnerNames);
+        spinNames.setOnItemSelectedListener(this);
+
+        etGrade = findViewById(R.id.etGrade);
+        etSubject = findViewById(R.id.etSubject);
+        etWorkType = findViewById(R.id.etWorkType);
+        etQuarter = findViewById(R.id.etQuarter);
 
         // Inits the database
         hlp = new HelperDB(this);
         db = hlp.getWritableDatabase();
         db.close();
+
+        cv = new ContentValues();
     }
 
     /**
@@ -78,9 +97,13 @@ public class InputGradeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This function reads the students ids and names from the table and displays them in the
+     * spinner.
+     */
     public void readStudentsData(){
         String[] columns = {STUDENT_KEY_ID, STUDENT_NAME};
-        String selection = ACTIVE;
+        String selection = ACTIVE + "=?";
         String[] selectionArgs = {"1"};
         String groupBy = null;
         String having = null;
@@ -100,6 +123,7 @@ public class InputGradeActivity extends AppCompatActivity {
         col1 = crsr.getColumnIndex(STUDENT_KEY_ID);
         col2 = crsr.getColumnIndex(STUDENT_NAME);
 
+        // Reads the names and ids
         crsr.moveToFirst();
         while (!crsr.isAfterLast()) {
             key = crsr.getInt(col1);
@@ -117,6 +141,68 @@ public class InputGradeActivity extends AppCompatActivity {
         spinNames.setAdapter(adp);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedStudentId = idsTbl.get(i);
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    public void saveGrade(View view) {
+        showAlertDialog();
+    }
+
+    /**
+     * This function saves the values of current grade in the database grades table.
+     */
+    public void saveFieldsToDb() {
+        cv.clear();
+
+        // Puts the fields to the cv
+        cv.put(Grades.GRADE_KEY_ID, selectedStudentId);
+        cv.put(Grades.GRADE, Double.parseDouble(etGrade.getText().toString()));
+        cv.put(Grades.SUBJECT, etSubject.getText().toString());
+        cv.put(Grades.TYPE, etWorkType.getText().toString());
+        cv.put(Grades.QUARTER, Integer.parseInt(etQuarter.getText().toString()));
+
+        // Inserts the data to the table
+        db = hlp.getWritableDatabase();
+        db.insert(Grades.TABLE_GRADES, null, cv);
+        db.close();
+
+        Toast.makeText(this, "Added new grade!", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * This function shows an alert dialog which asks the user if he wants to save the grade data.
+     * According to the user's response, it saves or not saves the data in the database.
+     */
+    public void showAlertDialog() {
+        adb = new AlertDialog.Builder(this);
+        adb.setCancelable(false);
+        adb.setTitle("Add New Grade");
+        adb.setMessage("Do you want to add the new grade?");
+
+        // Saves in the database
+        adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                saveFieldsToDb();
+            }
+        });
+
+        // Doesn't save
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        ad = adb.create();
+        ad.show();
+    }
 }
