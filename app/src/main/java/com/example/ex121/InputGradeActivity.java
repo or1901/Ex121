@@ -67,6 +67,10 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         db.close();
 
         cv = new ContentValues();
+        namesTbl = new ArrayList<>();
+        idsTbl = new ArrayList<>();
+        adp = new ArrayAdapter(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, namesTbl);
     }
 
     /**
@@ -114,8 +118,8 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
 
         int key = 0;
         String name = "";
-        namesTbl = new ArrayList<>();
-        idsTbl = new ArrayList<>();
+        namesTbl.clear();
+        idsTbl.clear();
 
         db = hlp.getReadableDatabase();
         crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
@@ -136,11 +140,17 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         }
         crsr.close();
         db.close();
-        adp = new ArrayAdapter(this,
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, namesTbl);
+        adp.notifyDataSetChanged();
         spinNames.setAdapter(adp);
     }
 
+    /**
+     * This function saves the id of the chosen student in the spinner of names.
+     * @param adapterView The adapter view of the spinner
+     * @param view
+     * @param i The position of the chosen student in the spinner
+     * @param l The row of the chosen student in the spinner
+     */
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         selectedStudentId = idsTbl.get(i);
@@ -151,8 +161,18 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
 
     }
 
+    /**
+     * This function checks if all the fields of the grade are full, and asks the user if he wants
+     * to save the grade data or not(with alert dialog).
+     * @param view The button that was clicked in order to save the grade data.
+     */
     public void saveGrade(View view) {
-        showAlertDialog();
+        if(!areEmptyFields()) {
+            showAlertDialog();
+        }
+        else {
+            Toast.makeText(this, "Enter all the fields!", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -163,7 +183,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
 
         // Puts the fields to the cv
         cv.put(Grades.GRADE_KEY_ID, selectedStudentId);
-        cv.put(Grades.GRADE, Double.parseDouble(etGrade.getText().toString()));
+        cv.put(Grades.GRADE, Integer.parseInt(etGrade.getText().toString()));
         cv.put(Grades.SUBJECT, etSubject.getText().toString());
         cv.put(Grades.TYPE, etWorkType.getText().toString());
         cv.put(Grades.QUARTER, Integer.parseInt(etQuarter.getText().toString()));
@@ -173,7 +193,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         db.insert(Grades.TABLE_GRADES, null, cv);
         db.close();
 
-        Toast.makeText(this, "Added new grade!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Grade was saved!", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -204,5 +224,16 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
 
         ad = adb.create();
         ad.show();
+    }
+
+    /**
+     * This function checks if at least one of the edit texts of the grade fields is empty.
+     * @return Whether at least one of the edit texts of the grade fields is empty.
+     */
+    public boolean areEmptyFields() {
+        return (etGrade.getText().toString().equals("")) ||
+                (etSubject.getText().toString().equals("")) ||
+                (etWorkType.getText().toString().equals("")) ||
+                (etQuarter.getText().toString().equals(""));
     }
 }

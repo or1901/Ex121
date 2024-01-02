@@ -28,7 +28,7 @@
             android:layout_height="match_parent"
             android:layout_weight="5"
             android:gravity="center"
-            android:text="Add New Grade"
+            android:text="Input Grade"
             android:textSize="34sp" />
 
         <Space
@@ -56,9 +56,9 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="2.5"
             android:gravity="center_vertical"
-            android:text="Choose Student:"
+            android:text="Student"
             android:textSize="16sp" />
 
         <Spinner
@@ -92,7 +92,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="2.5"
             android:gravity="center_vertical"
             android:text="Grade"
             android:textSize="16sp" />
@@ -104,7 +104,7 @@
             android:layout_weight="8"
             android:ems="10"
             android:hint="Grade"
-            android:inputType="numberDecimal|numberSigned" />
+            android:inputType="number" />
 
         <Space
             android:layout_width="0dp"
@@ -131,7 +131,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="2.5"
             android:gravity="center_vertical"
             android:text="Subject"
             android:textSize="16sp" />
@@ -170,7 +170,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="3"
             android:gravity="center_vertical"
             android:text="Work type"
             android:textSize="16sp" />
@@ -209,7 +209,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="2.5"
             android:gravity="center_vertical"
             android:text="Quarter"
             android:textSize="16sp" />
@@ -232,12 +232,12 @@
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.5" />
+        android:layout_weight="0.8" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0.8"
         android:orientation="horizontal">
 
         <Space

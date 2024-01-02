@@ -61,7 +61,7 @@ public class HelperDB extends SQLiteOpenHelper {
         // Creates the grades table
         strCreate = "CREATE TABLE "+TABLE_GRADES;
         strCreate += " ("+GRADE_KEY_ID+" INTEGER,";
-        strCreate += " "+GRADE+" REAL,";
+        strCreate += " "+GRADE+" INTEGER,";
         strCreate += " "+SUBJECT+" TEXT,";
         strCreate += " "+TYPE+" TEXT,";
         strCreate += " "+QUARTER+" INTEGER";

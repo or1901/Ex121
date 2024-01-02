@@ -128,7 +128,7 @@ public class InputStudentActivity extends AppCompatActivity {
         db.insert(Students.TABLE_STUDENTS, null, cv);
         db.close();
 
-        Toast.makeText(this, "Added new student!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Student was saved!", Toast.LENGTH_SHORT).show();
     }
 
     /**
