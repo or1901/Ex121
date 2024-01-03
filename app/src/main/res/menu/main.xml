@@ -11,4 +11,9 @@
         android:title="Add Grade"
         android:orderInCategory="200"/>
 
+    <item
+        android:id="@+id/menuShowStudents"
+        android:title="Show Students"
+        android:orderInCategory="300"/>
+
 </menu>

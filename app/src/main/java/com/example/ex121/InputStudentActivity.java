@@ -142,6 +142,23 @@ public class InputStudentActivity extends AppCompatActivity {
         return (etStudName.getText().toString().equals(""));
     }
 
+
+    /**
+     * This function checks if the switch of the user's activity is selected or not.
+     * @return 1 if the user's activity is selected or 0 otherwise.
+     */
+    public int getUserActive()
+    {
+        if(switchActive.isChecked())
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     /**
      * This function presents the options menu for moving between activities.
      * @param menu the options menu in which you place your items.
@@ -167,23 +184,12 @@ public class InputStudentActivity extends AppCompatActivity {
             si = new Intent(this, InputGradeActivity.class);
             startActivity(si);
         }
+        else if(id == R.id.menuShowStudents)
+        {
+            si = new Intent(this, ShowStudentsActivity.class);
+            startActivity(si);
+        }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * This function checks if the switch of the user's activity is selected or not.
-     * @return 1 if the user's activity is selected or 0 otherwise.
-     */
-    public int getUserActive()
-    {
-        if(switchActive.isChecked())
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
     }
 }
