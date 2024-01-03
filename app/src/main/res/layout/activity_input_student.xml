@@ -363,19 +363,21 @@
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="0.15" />
 
         <Switch
-            android:id="@+id/switch1"
+            android:id="@+id/switchActive"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Active Student" />
+            android:layout_weight="1.7"
+            android:text="Active Student?"
+            android:textColor="@android:color/secondary_text_light"
+            android:textSize="16sp" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
     </LinearLayout>
 
     <Space

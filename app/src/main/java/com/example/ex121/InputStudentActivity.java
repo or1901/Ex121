@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 /**
@@ -27,6 +28,7 @@ public class InputStudentActivity extends AppCompatActivity {
     HelperDB hlp;
     EditText etStudName, etAddress, etStudPhone, etHomePhone, etMomName, etMomPhone, etDadName,
             etDadPhone;
+    Switch switchActive;
     AlertDialog.Builder adb;
     AlertDialog ad;
     ContentValues cv;
@@ -53,6 +55,7 @@ public class InputStudentActivity extends AppCompatActivity {
         etMomPhone = findViewById(R.id.etMomPhone);
         etDadName = findViewById(R.id.etDadName);
         etDadPhone = findViewById(R.id.etDadPhone);
+        switchActive = findViewById(R.id.switchActive);
 
         // Inits the database
         hlp = new HelperDB(this);
@@ -72,7 +75,7 @@ public class InputStudentActivity extends AppCompatActivity {
             showAlertDialog();
         }
         else {
-            Toast.makeText(this, "Enter at least student name!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You must enter student name!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -83,8 +86,8 @@ public class InputStudentActivity extends AppCompatActivity {
     public void showAlertDialog() {
         adb = new AlertDialog.Builder(this);
         adb.setCancelable(false);
-        adb.setTitle("Add New Student");
-        adb.setMessage("Do you want to add the new student?");
+        adb.setTitle("Save Student");
+        adb.setMessage("Do you want to save the student data?");
 
         // Saves in the database
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -113,7 +116,7 @@ public class InputStudentActivity extends AppCompatActivity {
         cv.clear();
 
         // Puts the fields to the cv
-        cv.put(Students.ACTIVE, 1);
+        cv.put(Students.ACTIVE, getUserActive());
         cv.put(Students.STUDENT_NAME, etStudName.getText().toString());
         cv.put(Students.ADDRESS, etAddress.getText().toString());
         cv.put(Students.STUDENT_PHONE, etStudPhone.getText().toString());
@@ -166,5 +169,21 @@ public class InputStudentActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * This function checks if the switch of the user's activity is selected or not.
+     * @return 1 if the user's activity is selected or 0 otherwise.
+     */
+    public int getUserActive()
+    {
+        if(switchActive.isChecked())
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }

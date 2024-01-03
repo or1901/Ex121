@@ -203,8 +203,8 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     public void showAlertDialog() {
         adb = new AlertDialog.Builder(this);
         adb.setCancelable(false);
-        adb.setTitle("Add New Grade");
-        adb.setMessage("Do you want to add the new grade?");
+        adb.setTitle("Save Grade");
+        adb.setMessage("Do you want to save the grade data?");
 
         // Saves in the database
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
