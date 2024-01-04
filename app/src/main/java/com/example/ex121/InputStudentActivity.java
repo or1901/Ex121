@@ -1,5 +1,17 @@
 package com.example.ex121;
 
+import static com.example.ex121.Students.ACTIVE;
+import static com.example.ex121.Students.ADDRESS;
+import static com.example.ex121.Students.FATHER_NAME;
+import static com.example.ex121.Students.FATHER_PHONE;
+import static com.example.ex121.Students.HOME_PHONE;
+import static com.example.ex121.Students.MOTHER_NAME;
+import static com.example.ex121.Students.MOTHER_PHONE;
+import static com.example.ex121.Students.STUDENT_KEY_ID;
+import static com.example.ex121.Students.STUDENT_NAME;
+import static com.example.ex121.Students.STUDENT_PHONE;
+import static com.example.ex121.Students.TABLE_STUDENTS;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -8,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
@@ -33,7 +46,10 @@ public class InputStudentActivity extends AppCompatActivity {
     AlertDialog.Builder adb;
     AlertDialog ad;
     ContentValues cv;
-    Intent si;
+    Intent si, gi;
+    int editStudentId;
+    Cursor crsr;
+    boolean saveStudent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +74,15 @@ public class InputStudentActivity extends AppCompatActivity {
         etDadPhone = findViewById(R.id.etDadPhone);
         switchActive = findViewById(R.id.switchActive);
 
+        saveStudent = true;
+
         // Inits the database
         hlp = new HelperDB(this);
         db = hlp.getWritableDatabase();
         db.close();
 
         cv = new ContentValues();
+        si = new Intent();
     }
 
     /**
@@ -94,7 +113,7 @@ public class InputStudentActivity extends AppCompatActivity {
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                saveFieldsToDb();
+                saveFieldsToDb(saveStudent);
             }
         });
 
@@ -113,13 +132,13 @@ public class InputStudentActivity extends AppCompatActivity {
     /**
      * This function saves the values of current student in the database students table.
      */
-    public void saveFieldsToDb() {
+    public void saveFieldsToDb(boolean saveNeed) {
         cv.clear();
 
         // Puts the fields to the cv
         cv.put(Students.ACTIVE, getUserActive());
         cv.put(Students.STUDENT_NAME, etStudName.getText().toString());
-        cv.put(Students.ADDRESS, etAddress.getText().toString());
+        cv.put(ADDRESS, etAddress.getText().toString());
         cv.put(Students.STUDENT_PHONE, etStudPhone.getText().toString());
         cv.put(Students.HOME_PHONE, etHomePhone.getText().toString());
         cv.put(Students.MOTHER_NAME, etMomName.getText().toString());
@@ -127,12 +146,26 @@ public class InputStudentActivity extends AppCompatActivity {
         cv.put(Students.FATHER_NAME, etDadName.getText().toString());
         cv.put(Students.FATHER_PHONE, etDadPhone.getText().toString());
 
-        // Inserts the data to the table
-        db = hlp.getWritableDatabase();
-        db.insert(Students.TABLE_STUDENTS, null, cv);
-        db.close();
+        if(saveNeed)
+        {
+            // Inserts the data to the table
+            db = hlp.getWritableDatabase();
+            db.insert(Students.TABLE_STUDENTS, null, cv);
+            db.close();
 
-        Toast.makeText(this, "Student was saved!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Added new student!", Toast.LENGTH_SHORT).show();
+
+        }
+        else
+        {
+            // Edits the data in the table
+            db = hlp.getWritableDatabase();
+            db.update(TABLE_STUDENTS, cv, STUDENT_KEY_ID+"=?", new String[]{"" + editStudentId});
+            db.close();
+
+            Toast.makeText(this, "Edited student data!", Toast.LENGTH_SHORT).show();
+            saveStudent = true;
+        }
     }
 
     /**
@@ -160,6 +193,18 @@ public class InputStudentActivity extends AppCompatActivity {
         }
     }
 
+    public void resetStudentFields() {
+        etStudName.setText("");
+        etAddress.setText("");
+        etStudPhone.setText("");
+        etHomePhone.setText("");
+        etMomName.setText("");
+        etMomPhone.setText("");
+        etDadName.setText("");
+        etDadPhone.setText("");
+        switchActive.setChecked(true);
+    }
+
     /**
      * This function presents the options menu for moving between activities.
      * @param menu the options menu in which you place your items.
@@ -182,24 +227,87 @@ public class InputStudentActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if(id == R.id.menuAddGrade){
-            si = new Intent(this, InputGradeActivity.class);
+            si.setClass(this, InputGradeActivity.class);
             startActivity(si);
         }
         else if(id == R.id.menuShowStudents)
         {
-            si = new Intent(this, ShowStudentsActivity.class);
-            startActivityForResult(si, 1);
+            si.setClass(this, ShowStudentsActivity.class);
+            startActivity(si);
+        }
+        else
+        {
+            resetStudentFields();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int source, int good, @Nullable Intent data_back) {
-        super.onActivityResult(source, good, data_back);
+    public void displayStudentFields(){
+        String[] columns = {STUDENT_NAME, ADDRESS, STUDENT_PHONE, HOME_PHONE, MOTHER_NAME,
+                MOTHER_PHONE, FATHER_NAME, FATHER_PHONE, ACTIVE};
+        String selection = STUDENT_KEY_ID + "=?";
+        String[] selectionArgs = {"" + editStudentId};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
 
-        if (data_back != null) {
-            Toast.makeText(this,"Maybe", Toast.LENGTH_LONG).show();
+        int col1 = 0;
+        int col2 = 0;
+        int col3 = 0;
+        int col4 = 0;
+        int col5 = 0;
+        int col6 = 0;
+        int col7 = 0;
+        int col8 = 0;
+        int col9 = 0;
+        int isActive = 0;
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        col1 = crsr.getColumnIndex(STUDENT_NAME);
+        col2 = crsr.getColumnIndex(ADDRESS);
+        col3 = crsr.getColumnIndex(STUDENT_PHONE);
+        col4 = crsr.getColumnIndex(HOME_PHONE);
+        col5 = crsr.getColumnIndex(MOTHER_NAME);
+        col6 = crsr.getColumnIndex(MOTHER_PHONE);
+        col7 = crsr.getColumnIndex(FATHER_NAME);
+        col8 = crsr.getColumnIndex(FATHER_PHONE);
+        col9 = crsr.getColumnIndex(ACTIVE);
+
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            etStudName.setText(crsr.getString(col1));
+            etAddress.setText(crsr.getString(col2));
+            etStudPhone.setText(crsr.getString(col3));
+            etHomePhone.setText(crsr.getString(col4));
+            etMomName.setText(crsr.getString(col5));
+            etMomPhone.setText(crsr.getString(col6));
+            etDadName.setText(crsr.getString(col7));
+            etDadPhone.setText(crsr.getString(col8));
+            isActive = crsr.getInt(col9);
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+
+        switchActive.setChecked(isActive == 1);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        gi = getIntent();
+        editStudentId = gi.getIntExtra("StudentId", -1);
+
+        if(editStudentId != -1)
+        {
+            saveStudent = false;
+            displayStudentFields();
         }
     }
 }

@@ -26,10 +26,10 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="7"
             android:gravity="center"
-            android:text="Choose a student:"
-            android:textSize="34sp" />
+            android:text="Choose a student to show and edit:"
+            android:textSize="28sp" />
 
         <Space
             android:layout_width="0dp"

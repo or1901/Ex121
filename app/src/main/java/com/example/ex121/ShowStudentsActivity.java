@@ -6,9 +6,12 @@ import static com.example.ex121.Students.STUDENT_NAME;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,8 +26,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class ShowStudentsActivity extends AppCompatActivity implements
-        View.OnCreateContextMenuListener, AdapterView.OnItemLongClickListener {
+public class ShowStudentsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     SQLiteDatabase db;
     HelperDB hlp;
     Cursor crsr;
@@ -34,6 +36,9 @@ public class ShowStudentsActivity extends AppCompatActivity implements
     ArrayList<String> namesTbl;
     Intent gi;
     int selectedStudentId;
+    AlertDialog.Builder adb;
+    AlertDialog ad;
+    Context activityContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +46,7 @@ public class ShowStudentsActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_show_students);
 
         gi = getIntent();
+        activityContext = this;
         initAll();
         readStudentsData();
     }
@@ -51,7 +57,7 @@ public class ShowStudentsActivity extends AppCompatActivity implements
     private void initAll() {
         // Inits the views
         lvStudents = findViewById(R.id.lvStudents);
-        lvStudents.setOnCreateContextMenuListener(this);
+        lvStudents.setOnItemClickListener(this);
 
         // Inits the database
         hlp = new HelperDB(this);
@@ -100,28 +106,32 @@ public class ShowStudentsActivity extends AppCompatActivity implements
         adp.notifyDataSetChanged();
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.setHeaderTitle("Student Actions");
-        menu.add("Show & Edit");
-        menu.add("Delete Student");
-    }
+    public void showAlertDialog(int chosenStudentIndex) {
+        adb = new AlertDialog.Builder(this);
+        adb.setCancelable(false);
+        adb.setTitle("Show & Edit student");
+        adb.setMessage("Do you want to show & edit the data of " + namesTbl.get(chosenStudentIndex) + "?");
 
-    public boolean onContextItemSelected(MenuItem item) {
-        String action = item.getTitle().toString();
+        // Saves in the database
+        adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                gi.setClass(activityContext, InputStudentActivity.class);
+                gi.putExtra("StudentId", selectedStudentId);
+                startActivity(gi);
+            }
+        });
 
-        if(action.equals("Show & Edit"))
-        {
-            gi.putExtra("Id", selectedStudentId);
-            setResult(RESULT_OK,gi);
-            finish();
-        }
-        else
-        {
+        // Doesn't save
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
 
-        }
-
-        return super.onContextItemSelected(item);
+        ad = adb.create();
+        ad.show();
     }
 
 
@@ -135,13 +145,6 @@ public class ShowStudentsActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.main, menu);
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedStudentId = i + 1;
-
-        return true;
     }
 
     /**
@@ -164,5 +167,11 @@ public class ShowStudentsActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedStudentId = i + 1;
+        showAlertDialog(i);
     }
 }
