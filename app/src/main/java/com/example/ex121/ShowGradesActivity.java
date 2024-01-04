@@ -1,5 +1,11 @@
 package com.example.ex121;
 
+import static com.example.ex121.Grades.GRADE;
+import static com.example.ex121.Grades.GRADE_KEY_ID;
+import static com.example.ex121.Grades.STUDENT_ID;
+import static com.example.ex121.Grades.SUBJECT;
+import static com.example.ex121.Grades.TABLE_GRADES;
+import static com.example.ex121.Grades.TYPE;
 import static com.example.ex121.Students.ACTIVE;
 import static com.example.ex121.Students.STUDENT_KEY_ID;
 import static com.example.ex121.Students.STUDENT_NAME;
@@ -32,7 +38,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     Spinner spinNames;
     ArrayAdapter<String> spinnerAdp, lvAdp;
     ArrayList<String> namesTbl, gradesTbl;
-    ArrayList<Integer> idsTbl;
+    ArrayList<Integer> studentsIdsTbl, gradesIdsTbl;
     ContentValues cv;
     int selectedStudentId;
     ListView lvGrades;
@@ -64,7 +70,8 @@ public class ShowGradesActivity extends AppCompatActivity implements
 
         cv = new ContentValues();
         namesTbl = new ArrayList<String>();
-        idsTbl = new ArrayList<Integer>();
+        studentsIdsTbl = new ArrayList<Integer>();
+        gradesIdsTbl = new ArrayList<Integer>();
         gradesTbl = new ArrayList<String>();
 
         spinnerAdp = new ArrayAdapter<String>(this,
@@ -94,7 +101,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
         int key = 0;
         String name = "";
         namesTbl.clear();
-        idsTbl.clear();
+        studentsIdsTbl.clear();
 
         db = hlp.getReadableDatabase();
         crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
@@ -108,7 +115,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
             key = crsr.getInt(col1);
             name = crsr.getString(col2);
 
-            idsTbl.add(key);
+            studentsIdsTbl.add(key);
             namesTbl.add(name);
 
             crsr.moveToNext();
@@ -116,6 +123,47 @@ public class ShowGradesActivity extends AppCompatActivity implements
         crsr.close();
         db.close();
         spinnerAdp.notifyDataSetChanged();
+    }
+
+    public void readSGradesData(){
+        String[] columns = {GRADE_KEY_ID, GRADE, SUBJECT};
+        String selection = STUDENT_ID + "=?";
+        String[] selectionArgs = {"" + selectedStudentId};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
+        int col1 = 0;
+        int col2 = 0;
+        int col3 = 0;
+
+        int key = 0, grade = 0;
+        String subject = "";
+        gradesTbl.clear();
+        gradesIdsTbl.clear();
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        col1 = crsr.getColumnIndex(GRADE_KEY_ID);
+        col2 = crsr.getColumnIndex(GRADE);
+        col3 = crsr.getColumnIndex(SUBJECT);
+
+        // Reads the names and ids
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            key = crsr.getInt(col1);
+            grade = crsr.getInt(col2);
+            subject = crsr.getString(col3);
+
+            gradesIdsTbl.add(key);
+            gradesTbl.add(subject + ", " + grade);
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+        lvAdp.notifyDataSetChanged();
     }
 
     /**
@@ -159,7 +207,8 @@ public class ShowGradesActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedStudentId = idsTbl.get(i);
+        selectedStudentId = studentsIdsTbl.get(i);
+        readSGradesData();
     }
 
     @Override
@@ -169,6 +218,5 @@ public class ShowGradesActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
     }
 }
