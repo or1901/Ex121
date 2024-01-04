@@ -235,6 +235,11 @@ public class InputStudentActivity extends AppCompatActivity {
             si.setClass(this, ShowStudentsActivity.class);
             startActivity(si);
         }
+        else if(id == R.id.menuShowGrades)
+        {
+            si.setClass(this, ShowGradesActivity.class);
+            startActivity(si);
+        }
         else
         {
             resetStudentFields();

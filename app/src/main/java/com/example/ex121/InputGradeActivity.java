@@ -241,6 +241,11 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
             gi.setClass(this, ShowStudentsActivity.class);
             startActivity(gi);
         }
+        else if(id == R.id.menuShowGrades)
+        {
+            gi.setClass(this, ShowGradesActivity.class);
+            startActivity(gi);
+        }
 
         return super.onOptionsItemSelected(item);
     }

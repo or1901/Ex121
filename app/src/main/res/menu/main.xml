@@ -16,4 +16,9 @@
         android:title="Show Students"
         android:orderInCategory="300"/>
 
+    <item
+        android:id="@+id/menuShowGrades"
+        android:title="Show Grades"
+        android:orderInCategory="400"/>
+
 </menu>
