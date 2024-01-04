@@ -3,6 +3,7 @@ package com.example.ex121;
 import static com.example.ex121.Grades.GRADE;
 import static com.example.ex121.Grades.GRADE_KEY_ID;
 import static com.example.ex121.Grades.QUARTER;
+import static com.example.ex121.Grades.STUDENT_ID;
 import static com.example.ex121.Grades.SUBJECT;
 import static com.example.ex121.Grades.TABLE_GRADES;
 import static com.example.ex121.Grades.TYPE;
@@ -60,7 +61,8 @@ public class HelperDB extends SQLiteOpenHelper {
 
         // Creates the grades table
         strCreate = "CREATE TABLE "+TABLE_GRADES;
-        strCreate += " ("+GRADE_KEY_ID+" INTEGER,";
+        strCreate += " ("+GRADE_KEY_ID+" INTEGER PRIMARY KEY,";
+        strCreate += " "+STUDENT_ID+" INTEGER,";
         strCreate += " "+GRADE+" INTEGER,";
         strCreate += " "+SUBJECT+" TEXT,";
         strCreate += " "+TYPE+" TEXT,";

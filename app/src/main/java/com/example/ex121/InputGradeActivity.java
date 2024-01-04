@@ -156,7 +156,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         cv.clear();
 
         // Puts the fields to the cv
-        cv.put(Grades.GRADE_KEY_ID, selectedStudentId);
+        cv.put(Grades.STUDENT_ID, selectedStudentId);
         cv.put(Grades.GRADE, Integer.parseInt(etGrade.getText().toString()));
         cv.put(Grades.SUBJECT, etSubject.getText().toString());
         cv.put(Grades.TYPE, etWorkType.getText().toString());
