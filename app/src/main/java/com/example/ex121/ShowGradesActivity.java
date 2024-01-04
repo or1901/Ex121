@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +31,8 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 
 public class ShowGradesActivity extends AppCompatActivity implements
-        AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener {
+        AdapterView.OnItemSelectedListener, View.OnCreateContextMenuListener,
+        AdapterView.OnItemLongClickListener {
     Intent gi;
     SQLiteDatabase db;
     HelperDB hlp;
@@ -40,7 +42,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     ArrayList<String> namesTbl, gradesTbl;
     ArrayList<Integer> studentsIdsTbl, gradesIdsTbl;
     ContentValues cv;
-    int selectedStudentId;
+    int selectedStudentId, selectedStudentIndex, selectedGradeId;
     ListView lvGrades;
 
     @Override
@@ -61,7 +63,8 @@ public class ShowGradesActivity extends AppCompatActivity implements
         spinNames.setOnItemSelectedListener(this);
 
         lvGrades = findViewById(R.id.lvGrades);
-        lvGrades.setOnItemClickListener(this);
+        lvGrades.setOnItemLongClickListener(this);
+        lvGrades.setOnCreateContextMenuListener(this);
 
         // Inits the database
         hlp = new HelperDB(this);
@@ -126,7 +129,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     }
 
     public void readSGradesData(){
-        String[] columns = {GRADE_KEY_ID, GRADE, SUBJECT};
+        String[] columns = {GRADE_KEY_ID, GRADE, SUBJECT, TYPE};
         String selection = STUDENT_ID + "=?";
         String[] selectionArgs = {"" + selectedStudentId};
         String groupBy = null;
@@ -136,9 +139,10 @@ public class ShowGradesActivity extends AppCompatActivity implements
         int col1 = 0;
         int col2 = 0;
         int col3 = 0;
+        int col4 = 0;
 
         int key = 0, grade = 0;
-        String subject = "";
+        String subject = "", type = "";
         gradesTbl.clear();
         gradesIdsTbl.clear();
 
@@ -148,6 +152,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
         col1 = crsr.getColumnIndex(GRADE_KEY_ID);
         col2 = crsr.getColumnIndex(GRADE);
         col3 = crsr.getColumnIndex(SUBJECT);
+        col4 = crsr.getColumnIndex(TYPE);
 
         // Reads the names and ids
         crsr.moveToFirst();
@@ -155,15 +160,41 @@ public class ShowGradesActivity extends AppCompatActivity implements
             key = crsr.getInt(col1);
             grade = crsr.getInt(col2);
             subject = crsr.getString(col3);
+            type = crsr.getString(col4);
 
             gradesIdsTbl.add(key);
-            gradesTbl.add(subject + ", " + grade);
+            gradesTbl.add(subject + "(" + type + "), " + grade);
 
             crsr.moveToNext();
         }
         crsr.close();
         db.close();
         lvAdp.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle("Grade Actions");
+        menu.add("Show & Edit");
+        menu.add("Delete Grade");
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        String action = item.getTitle().toString();
+
+        if(action.equals("Show & Edit"))
+        {
+            gi.setClass(this, InputGradeActivity.class);
+            gi.putExtra("StudentIndex", selectedStudentIndex);
+            gi.putExtra("GradeId", selectedGradeId);
+            startActivity(gi);
+        }
+        else
+        {
+
+        }
+
+        return super.onContextItemSelected(item);
     }
 
     /**
@@ -208,6 +239,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         selectedStudentId = studentsIdsTbl.get(i);
+        selectedStudentIndex = i;
         readSGradesData();
     }
 
@@ -217,6 +249,9 @@ public class ShowGradesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedGradeId = gradesIdsTbl.get(i);
+
+        return false;
     }
 }

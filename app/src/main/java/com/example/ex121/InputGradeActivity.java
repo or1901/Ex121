@@ -1,8 +1,22 @@
 package com.example.ex121;
 
+import static com.example.ex121.Grades.GRADE;
+import static com.example.ex121.Grades.GRADE_KEY_ID;
+import static com.example.ex121.Grades.QUARTER;
+import static com.example.ex121.Grades.STUDENT_ID;
+import static com.example.ex121.Grades.SUBJECT;
+import static com.example.ex121.Grades.TABLE_GRADES;
+import static com.example.ex121.Grades.TYPE;
 import static com.example.ex121.Students.ACTIVE;
+import static com.example.ex121.Students.ADDRESS;
+import static com.example.ex121.Students.FATHER_NAME;
+import static com.example.ex121.Students.FATHER_PHONE;
+import static com.example.ex121.Students.HOME_PHONE;
+import static com.example.ex121.Students.MOTHER_NAME;
+import static com.example.ex121.Students.MOTHER_PHONE;
 import static com.example.ex121.Students.STUDENT_KEY_ID;
 import static com.example.ex121.Students.STUDENT_NAME;
+import static com.example.ex121.Students.STUDENT_PHONE;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
@@ -34,12 +48,13 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     ArrayAdapter<String> adp;
     ArrayList<String> namesTbl;
     ArrayList<Integer> idsTbl;
-    int selectedStudentId;
+    int selectedStudentId, editGradeId;
     EditText etGrade, etSubject, etWorkType, etQuarter;
     ContentValues cv;
     AlertDialog.Builder adb;
     AlertDialog ad;
     Intent gi;
+    boolean saveGrade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +77,8 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         etSubject = findViewById(R.id.etSubject);
         etWorkType = findViewById(R.id.etWorkType);
         etQuarter = findViewById(R.id.etQuarter);
+
+        saveGrade = true;
 
         // Inits the database
         hlp = new HelperDB(this);
@@ -152,22 +169,34 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     /**
      * This function saves the values of current grade in the database grades table.
      */
-    public void saveFieldsToDb() {
+    public void saveFieldsToDb(boolean saveNeed) {
         cv.clear();
 
         // Puts the fields to the cv
-        cv.put(Grades.STUDENT_ID, selectedStudentId);
-        cv.put(Grades.GRADE, Integer.parseInt(etGrade.getText().toString()));
+        cv.put(STUDENT_ID, selectedStudentId);
+        cv.put(GRADE, Integer.parseInt(etGrade.getText().toString()));
         cv.put(Grades.SUBJECT, etSubject.getText().toString());
         cv.put(Grades.TYPE, etWorkType.getText().toString());
         cv.put(Grades.QUARTER, Integer.parseInt(etQuarter.getText().toString()));
 
-        // Inserts the data to the table
-        db = hlp.getWritableDatabase();
-        db.insert(Grades.TABLE_GRADES, null, cv);
-        db.close();
 
-        Toast.makeText(this, "Grade was saved!", Toast.LENGTH_SHORT).show();
+        if(saveNeed) {
+            db = hlp.getWritableDatabase();
+            db.insert(TABLE_GRADES, null, cv);
+            db.close();
+
+            Toast.makeText(this, "Added new grade!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            // Edits the data in the table
+            db = hlp.getWritableDatabase();
+            db.update(TABLE_GRADES, cv, GRADE_KEY_ID+"=?", new String[]{"" + editGradeId});
+            db.close();
+
+            Toast.makeText(this, "Edited grade data!", Toast.LENGTH_SHORT).show();
+            saveGrade = true;
+        }
+
     }
 
     /**
@@ -184,7 +213,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                saveFieldsToDb();
+                saveFieldsToDb(saveGrade);
             }
         });
 
@@ -209,6 +238,48 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
                 (etSubject.getText().toString().equals("")) ||
                 (etWorkType.getText().toString().equals("")) ||
                 (etQuarter.getText().toString().equals(""));
+    }
+
+    public void displayGradeFields(int gradeId){
+        String[] columns = {GRADE, SUBJECT, TYPE, QUARTER};
+        String selection = GRADE_KEY_ID + "=?";
+        String[] selectionArgs = {"" + gradeId};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
+        int col1 = 0;
+        int col2 = 0;
+        int col3 = 0;
+        int col4 = 0;
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        col1 = crsr.getColumnIndex(GRADE);
+        col2 = crsr.getColumnIndex(SUBJECT);
+        col3 = crsr.getColumnIndex(TYPE);
+        col4 = crsr.getColumnIndex(QUARTER);
+
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            etGrade.setText(crsr.getString(col1));
+            etSubject.setText(crsr.getString(col2));
+            etWorkType.setText(crsr.getString(col3));
+            etQuarter.setText("" + crsr.getInt(col4));
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+    }
+
+    public void resetGradeFields() {
+        etGrade.setText("");
+        etSubject.setText("");
+        etWorkType.setText("");
+        etQuarter.setText("");
+        spinNames.setSelection(0);
     }
 
     /**
@@ -246,7 +317,25 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
             gi.setClass(this, ShowGradesActivity.class);
             startActivity(gi);
         }
+        else {
+            resetGradeFields();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        gi = getIntent();
+        editGradeId = gi.getIntExtra("GradeId", -1);
+
+        if(editGradeId != -1)
+        {
+            saveGrade = false;
+            spinNames.setSelection(gi.getIntExtra("StudentIndex", 0));
+            displayGradeFields(editGradeId);
+        }
     }
 }

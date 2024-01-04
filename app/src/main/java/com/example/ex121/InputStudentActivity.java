@@ -299,7 +299,6 @@ public class InputStudentActivity extends AppCompatActivity {
         db.close();
 
         switchActive.setChecked(isActive == 1);
-
     }
 
     @Override

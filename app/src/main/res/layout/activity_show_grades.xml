@@ -94,7 +94,7 @@
             android:layout_height="match_parent"
             android:layout_weight="7"
             android:gravity="center"
-            android:text="Choose a grade to show and edit:"
+            android:text="Choose a grade(long click):"
             android:textSize="20sp" />
 
         <Space
