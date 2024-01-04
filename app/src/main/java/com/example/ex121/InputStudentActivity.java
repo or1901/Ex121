@@ -1,6 +1,7 @@
 package com.example.ex121;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -187,9 +188,18 @@ public class InputStudentActivity extends AppCompatActivity {
         else if(id == R.id.menuShowStudents)
         {
             si = new Intent(this, ShowStudentsActivity.class);
-            startActivity(si);
+            startActivityForResult(si, 1);
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int source, int good, @Nullable Intent data_back) {
+        super.onActivityResult(source, good, data_back);
+
+        if (data_back != null) {
+            Toast.makeText(this,"Maybe", Toast.LENGTH_LONG).show();
+        }
     }
 }

@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +23,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class ShowStudentsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ShowStudentsActivity extends AppCompatActivity implements
+        View.OnCreateContextMenuListener, AdapterView.OnItemLongClickListener {
     SQLiteDatabase db;
     HelperDB hlp;
     Cursor crsr;
@@ -31,6 +33,7 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
     ArrayAdapter<String> adp;
     ArrayList<String> namesTbl;
     Intent gi;
+    int selectedStudentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,7 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
     private void initAll() {
         // Inits the views
         lvStudents = findViewById(R.id.lvStudents);
-        lvStudents.setOnItemClickListener(this);
+        lvStudents.setOnCreateContextMenuListener(this);
 
         // Inits the database
         hlp = new HelperDB(this);
@@ -60,11 +63,6 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
         adp = new ArrayAdapter<String>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, namesTbl);
         lvStudents.setAdapter(adp);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
     }
 
     /**
@@ -102,16 +100,48 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
         adp.notifyDataSetChanged();
     }
 
-    /**
-     * This function presents the options menu for moving between activities.
-     * @param menu the options menu in which you place your items.
-     * @return true in order to show the menu, otherwise false.
-     */
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle("Student Actions");
+        menu.add("Show & Edit");
+        menu.add("Delete Student");
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        String action = item.getTitle().toString();
+
+        if(action.equals("Show & Edit"))
+        {
+            gi.putExtra("Id", selectedStudentId);
+            setResult(RESULT_OK,gi);
+            finish();
+        }
+        else
+        {
+
+        }
+
+        return super.onContextItemSelected(item);
+    }
+
+
+        /**
+         * This function presents the options menu for moving between activities.
+         * @param menu the options menu in which you place your items.
+         * @return true in order to show the menu, otherwise false.
+         */
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.main, menu);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedStudentId = i + 1;
+
+        return true;
     }
 
     /**
