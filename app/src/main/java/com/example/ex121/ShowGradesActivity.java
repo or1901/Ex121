@@ -191,10 +191,18 @@ public class ShowGradesActivity extends AppCompatActivity implements
         }
         else
         {
-
+            deleteGrade(selectedGradeId);
+            gradesTbl.remove(selectedGradeId - 1);
+            lvAdp.notifyDataSetChanged();
         }
 
         return super.onContextItemSelected(item);
+    }
+
+    public void deleteGrade(int gradeId) {
+        db = hlp.getWritableDatabase();
+        db.delete(TABLE_GRADES, GRADE_KEY_ID+"=?", new String[]{"" + gradeId});
+        db.close();
     }
 
     /**
