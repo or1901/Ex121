@@ -30,6 +30,14 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 
+/**
+ * The activity of showing grades:
+ * displays all the existing grades of a chosen student, and gives the option to see the grades'
+ * details, edit and delete them.
+ * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
+ * @version	1
+ * @since 4/1/2023
+ */
 public class ShowGradesActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener, View.OnCreateContextMenuListener,
         AdapterView.OnItemLongClickListener {
@@ -59,6 +67,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
      * This function initializes the views and the database.
      */
     private void initAll() {
+        // Inits the views
         spinNames = findViewById(R.id.gradesSpinnerNames);
         spinNames.setOnItemSelectedListener(this);
 
@@ -88,7 +97,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
 
     /**
      * This function reads the students ids and names from the table and displays them in the
-     * spinner.
+     * names spinner.
      */
     public void readStudentsData(){
         String[] columns = {STUDENT_KEY_ID, STUDENT_NAME};
@@ -128,7 +137,12 @@ public class ShowGradesActivity extends AppCompatActivity implements
         spinnerAdp.notifyDataSetChanged();
     }
 
-    public void readSGradesData(){
+    /**
+     * This function reads the grades data of a given student, and displays them in the grades
+     * list view.
+     * @param studentId The id of the student to display its grades.
+     */
+    public void readSGradesData(int studentId){
         String[] columns = {GRADE_KEY_ID, GRADE, SUBJECT, TYPE};
         String selection = STUDENT_ID + "=?";
         String[] selectionArgs = {"" + selectedStudentId};
@@ -154,7 +168,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
         col3 = crsr.getColumnIndex(SUBJECT);
         col4 = crsr.getColumnIndex(TYPE);
 
-        // Reads the names and ids
+        // Reads the grade's data
         crsr.moveToFirst();
         while (!crsr.isAfterLast()) {
             key = crsr.getInt(col1);
@@ -172,6 +186,13 @@ public class ShowGradesActivity extends AppCompatActivity implements
         lvAdp.notifyDataSetChanged();
     }
 
+    /**
+     * This function creates the context menu of actions to perform with the chosen grade from the
+     * list view.
+     * @param menu The menu
+     * @param v
+     * @param menuInfo
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle("Grade Actions");
@@ -179,11 +200,17 @@ public class ShowGradesActivity extends AppCompatActivity implements
         menu.add("Delete Grade");
     }
 
+    /**
+     * This function reacts to the choice from the context menu of actions on the chosen grade.
+     * @param item The menu
+     * @return true for the menu to react, false otherwise.
+     */
     public boolean onContextItemSelected(MenuItem item) {
         String action = item.getTitle().toString();
 
         if(action.equals("Show & Edit"))
         {
+            // Goes to the input grade activity and displays there
             gi.setClass(this, InputGradeActivity.class);
             gi.putExtra("StudentIndex", selectedStudentIndex);
             gi.putExtra("GradeId", selectedGradeId);
@@ -191,6 +218,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
         }
         else
         {
+            // Deletes the chosen grade
             deleteGrade(selectedGradeId);
             gradesTbl.remove(selectedGradeId - 1);
             lvAdp.notifyDataSetChanged();
@@ -199,6 +227,10 @@ public class ShowGradesActivity extends AppCompatActivity implements
         return super.onContextItemSelected(item);
     }
 
+    /**
+     * This function deletes a record of a given grade from the database.
+     * @param gradeId The key id of the grade to delete.
+     */
     public void deleteGrade(int gradeId) {
         db = hlp.getWritableDatabase();
         db.delete(TABLE_GRADES, GRADE_KEY_ID+"=?", new String[]{"" + gradeId});
@@ -215,6 +247,41 @@ public class ShowGradesActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.main, menu);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * This function saves the id and the index of the chosen student from the spinner, and displays
+     * all the grades of the chosen student in the list view.
+     * @param adapterView The adapter view of the spinner
+     * @param view
+     * @param i The position of the chosen student in the spinner
+     * @param l The row of the chosen student in the spinner
+     */
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedStudentId = studentsIdsTbl.get(i);
+        selectedStudentIndex = i;
+        readSGradesData(selectedStudentId);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    /**
+     * This function saves the id of the chosen grade from the list view(when long clicked).
+     * @param adapterView The adapter view of the grades list view
+     * @param view
+     * @param i The position of the chosen grade in the list view
+     * @param l The row of the chosen grade in the list view
+     * @return false
+     */
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedGradeId = gradesIdsTbl.get(i);
+
+        return false;
     }
 
     /**
@@ -242,24 +309,5 @@ public class ShowGradesActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedStudentId = studentsIdsTbl.get(i);
-        selectedStudentIndex = i;
-        readSGradesData();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedGradeId = gradesIdsTbl.get(i);
-
-        return false;
     }
 }
