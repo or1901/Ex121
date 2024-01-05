@@ -29,7 +29,8 @@
             android:layout_weight="7"
             android:gravity="center"
             android:text="Grades display"
-            android:textSize="28sp" />
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <Space
             android:layout_width="0dp"
