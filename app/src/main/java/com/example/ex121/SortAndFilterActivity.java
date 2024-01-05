@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,16 +39,17 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
     HelperDB hlp;
     Cursor crsr;
     ContentValues cv;
-    ArrayAdapter<String> adpFilterOptions, adpFilterParam;
+    ArrayAdapter<String> adpFilterOptions, adpFilterParam, adpFilteredData;
     Spinner spinFilterOptions, spinFilterParam;
     String[] filterOptions = {"Grades of all students in a given quarter",
             "Grades of all students in a given subject",
             "All grades of a given student in a decreasing order"};
-    ArrayList<String> filterParamsTbl, namesTbl;
+    ArrayList<String> filterParamsTbl, namesTbl, filteredDataTbl;
     ArrayList<Integer> idsTbl;
     int selectedFilterOption;
     String chosenParam;
     TextView tvParamType;
+    ListView lvFilteredData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
 
         gi = getIntent();
         initAll();
+        readStudentsData();
     }
 
     /**
@@ -69,6 +72,8 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         spinFilterParam = findViewById(R.id.spinFilterParam);
         spinFilterParam.setOnItemSelectedListener(this);
 
+        lvFilteredData = findViewById(R.id.lvFilteredData);
+
         tvParamType = findViewById(R.id.tvParamType);
 
         // Inits the database
@@ -80,11 +85,8 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         filterParamsTbl = new ArrayList<String>();
         namesTbl = new ArrayList<String>();
         idsTbl = new ArrayList<Integer>();
+        filteredDataTbl = new ArrayList<String>();
 
-        filterParamsTbl.add("1");
-        filterParamsTbl.add("2");
-        filterParamsTbl.add("3");
-        filterParamsTbl.add("4");
         selectedFilterOption = 0;
 
         adpFilterOptions = new ArrayAdapter<String>(this,
@@ -94,42 +96,45 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         adpFilterParam = new ArrayAdapter<String>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, filterParamsTbl);
         spinFilterParam.setAdapter(adpFilterParam);
+
+        adpFilteredData = new ArrayAdapter<String>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, filteredDataTbl);
+        lvFilteredData.setAdapter(adpFilteredData);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        // First spinner
         if(adapterView.getId() == R.id.spinFilterOptions) {
-            // First spinner
-            if(selectedFilterOption != i)
-            {
-                selectedFilterOption = i;
-                filterParamsTbl.clear();
+            selectedFilterOption = i;
+            filterParamsTbl.clear();
 
-                switch(selectedFilterOption) {
-                    case 0:
-                        tvParamType.setText("Choose a quarter:");
-                        filterParamsTbl.add("1");
-                        filterParamsTbl.add("2");
-                        filterParamsTbl.add("3");
-                        filterParamsTbl.add("4");
-                        break;
+            switch(selectedFilterOption) {
+                case 0:
+                    tvParamType.setText("Choose a quarter:");
+                    filterParamsTbl.add("1");
+                    filterParamsTbl.add("2");
+                    filterParamsTbl.add("3");
+                    filterParamsTbl.add("4");
+                    break;
 
-                    case 1:
-                        tvParamType.setText("Choose a subject:");
-                        readStudentsData();
-                        readAllSubjects(filterParamsTbl);
-                        break;
+                case 1:
+                    tvParamType.setText("Choose a subject:");
+                    readStudentsData();
+                    readAllSubjects(filterParamsTbl);
+                    break;
 
-                    case 2:
-                        tvParamType.setText("Choose a student:");
-                        readStudentsData();
-                        filterParamsTbl.addAll(namesTbl);
-                        break;
+                case 2:
+                    tvParamType.setText("Choose a student:");
+                    readStudentsData();
+                    filterParamsTbl.addAll(namesTbl);
+                    break;
                 }
 
                 adpFilterParam.notifyDataSetChanged();
+                chosenParam = filterParamsTbl.get(0);
             }
-        }
+
 
         // Second spinner
         else {
@@ -216,6 +221,68 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         }
         crsr.close();
         db.close();
+    }
+
+    public void filterGrades(String columnType, String columnValue, ArrayList<String> arrayList, String orderBy) {
+        String[] columns = {GRADE, SUBJECT, TYPE, STUDENT_ID};
+        String selection = columnType + "=?";
+        String[] selectionArgs = {columnValue};
+        String groupBy = null;
+        String having = null;
+
+        int col1 = 0;
+        int col2 = 0;
+        int col3 = 0;
+        int col4 = 0;
+
+        int grade = 0, studId = 0;
+        String subject = "", type = "", studName = "";
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        col1 = crsr.getColumnIndex(GRADE);
+        col2 = crsr.getColumnIndex(SUBJECT);
+        col3 = crsr.getColumnIndex(TYPE);
+        col4 = crsr.getColumnIndex(STUDENT_ID);
+
+        // Reads the grade's data
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            grade = crsr.getInt(col1);
+            subject = crsr.getString(col2);
+            type = crsr.getString(col3);
+            studId = crsr.getInt(col4);
+
+            studName = namesTbl.get(idsTbl.indexOf(studId));
+
+            arrayList.add(subject + "(" + type + "), " + grade + " - " + studName);
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+    }
+
+    public void applyFilter(View view) {
+        int chosenStudId = 0;
+
+        filteredDataTbl.clear();
+
+        switch(selectedFilterOption) {
+            case 0:
+                filterGrades(QUARTER, chosenParam, filteredDataTbl, null);
+                break;
+            case 1:
+                filterGrades(SUBJECT, chosenParam, filteredDataTbl, null);
+                break;
+            case 2:
+                chosenStudId = idsTbl.get(namesTbl.indexOf(chosenParam));
+                filterGrades(STUDENT_ID, "" + chosenStudId, filteredDataTbl, GRADE + " DESC");
+                break;
+        }
+
+        adpFilteredData.notifyDataSetChanged();
     }
 
     /**
