@@ -130,7 +130,9 @@ public class InputStudentActivity extends AppCompatActivity {
     }
 
     /**
-     * This function saves the values of current student in the database students table.
+     * This function saves the values of current student in the database students table -
+     * according to the parameter it knows if to add a new record, or edit an existing one.
+     * @param saveNeed Whether to add a new record of student, or to edit an existing one.
      */
     public void saveFieldsToDb(boolean saveNeed) {
         cv.clear();
@@ -154,7 +156,6 @@ public class InputStudentActivity extends AppCompatActivity {
             db.close();
 
             Toast.makeText(this, "Added new student!", Toast.LENGTH_SHORT).show();
-
         }
         else
         {
@@ -170,7 +171,7 @@ public class InputStudentActivity extends AppCompatActivity {
 
     /**
      * This function checks if the edit text of the student name is empty.
-     * @return Whether the edit text of the student name is empty.
+     * @return Whether the edit text of the student name is empty, or not.
      */
     public boolean isEmptyName() {
         return (etStudName.getText().toString().equals(""));
@@ -193,6 +194,9 @@ public class InputStudentActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This function resets the edit texts of the student fields.
+     */
     public void resetStudentFields() {
         etStudName.setText("");
         etAddress.setText("");
@@ -203,6 +207,83 @@ public class InputStudentActivity extends AppCompatActivity {
         etDadName.setText("");
         etDadPhone.setText("");
         switchActive.setChecked(true);
+    }
+
+    /**
+     * This function displays the data of a given student in the edit texts.
+     * @param studentId The id of the student to display.
+     */
+    public void displayStudentFields(int studentId){
+        String[] columns = {STUDENT_NAME, ADDRESS, STUDENT_PHONE, HOME_PHONE, MOTHER_NAME,
+                MOTHER_PHONE, FATHER_NAME, FATHER_PHONE, ACTIVE};
+        String selection = STUDENT_KEY_ID + "=?";
+        String[] selectionArgs = {"" + studentId};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
+        int col1 = 0;
+        int col2 = 0;
+        int col3 = 0;
+        int col4 = 0;
+        int col5 = 0;
+        int col6 = 0;
+        int col7 = 0;
+        int col8 = 0;
+        int col9 = 0;
+        int isActive = 0;
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        // Saves the cols index
+        col1 = crsr.getColumnIndex(STUDENT_NAME);
+        col2 = crsr.getColumnIndex(ADDRESS);
+        col3 = crsr.getColumnIndex(STUDENT_PHONE);
+        col4 = crsr.getColumnIndex(HOME_PHONE);
+        col5 = crsr.getColumnIndex(MOTHER_NAME);
+        col6 = crsr.getColumnIndex(MOTHER_PHONE);
+        col7 = crsr.getColumnIndex(FATHER_NAME);
+        col8 = crsr.getColumnIndex(FATHER_PHONE);
+        col9 = crsr.getColumnIndex(ACTIVE);
+
+        // Reads and displays the student's data
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            etStudName.setText(crsr.getString(col1));
+            etAddress.setText(crsr.getString(col2));
+            etStudPhone.setText(crsr.getString(col3));
+            etHomePhone.setText(crsr.getString(col4));
+            etMomName.setText(crsr.getString(col5));
+            etMomPhone.setText(crsr.getString(col6));
+            etDadName.setText(crsr.getString(col7));
+            etDadPhone.setText(crsr.getString(col8));
+            isActive = crsr.getInt(col9);
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+
+        switchActive.setChecked(isActive == 1);
+    }
+
+    /**
+     * This function checks if the intent has returned with a student id. If so -
+     * it displays the data of the given student on the screen.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        gi = getIntent();
+        editStudentId = gi.getIntExtra("StudentId", -1);
+
+        if(editStudentId != -1)
+        {
+            saveStudent = false;
+            displayStudentFields(editStudentId);
+        }
     }
 
     /**
@@ -219,7 +300,7 @@ public class InputStudentActivity extends AppCompatActivity {
 
     /**
      * This function reacts to the user choice in the options menu - it moves to the chosen
-     * activity from the menu.
+     * activity from the menu, or resets the current one.
      * @param item the menu item that was selected.
      * @return must return true for the menu to react.
      */
@@ -246,72 +327,5 @@ public class InputStudentActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void displayStudentFields(){
-        String[] columns = {STUDENT_NAME, ADDRESS, STUDENT_PHONE, HOME_PHONE, MOTHER_NAME,
-                MOTHER_PHONE, FATHER_NAME, FATHER_PHONE, ACTIVE};
-        String selection = STUDENT_KEY_ID + "=?";
-        String[] selectionArgs = {"" + editStudentId};
-        String groupBy = null;
-        String having = null;
-        String orderBy = null;
-
-        int col1 = 0;
-        int col2 = 0;
-        int col3 = 0;
-        int col4 = 0;
-        int col5 = 0;
-        int col6 = 0;
-        int col7 = 0;
-        int col8 = 0;
-        int col9 = 0;
-        int isActive = 0;
-
-        db = hlp.getReadableDatabase();
-        crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
-
-        col1 = crsr.getColumnIndex(STUDENT_NAME);
-        col2 = crsr.getColumnIndex(ADDRESS);
-        col3 = crsr.getColumnIndex(STUDENT_PHONE);
-        col4 = crsr.getColumnIndex(HOME_PHONE);
-        col5 = crsr.getColumnIndex(MOTHER_NAME);
-        col6 = crsr.getColumnIndex(MOTHER_PHONE);
-        col7 = crsr.getColumnIndex(FATHER_NAME);
-        col8 = crsr.getColumnIndex(FATHER_PHONE);
-        col9 = crsr.getColumnIndex(ACTIVE);
-
-        crsr.moveToFirst();
-        while (!crsr.isAfterLast()) {
-            etStudName.setText(crsr.getString(col1));
-            etAddress.setText(crsr.getString(col2));
-            etStudPhone.setText(crsr.getString(col3));
-            etHomePhone.setText(crsr.getString(col4));
-            etMomName.setText(crsr.getString(col5));
-            etMomPhone.setText(crsr.getString(col6));
-            etDadName.setText(crsr.getString(col7));
-            etDadPhone.setText(crsr.getString(col8));
-            isActive = crsr.getInt(col9);
-
-            crsr.moveToNext();
-        }
-        crsr.close();
-        db.close();
-
-        switchActive.setChecked(isActive == 1);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        gi = getIntent();
-        editStudentId = gi.getIntExtra("StudentId", -1);
-
-        if(editStudentId != -1)
-        {
-            saveStudent = false;
-            displayStudentFields();
-        }
     }
 }
