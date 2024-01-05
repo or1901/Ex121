@@ -1,7 +1,5 @@
 package com.example.ex121;
 
-import static com.example.ex121.Students.ACTIVE;
-import static com.example.ex121.Students.STUDENT_KEY_ID;
 import static com.example.ex121.Students.STUDENT_NAME;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
@@ -16,7 +14,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +23,13 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+/**
+ * The activity of showing students:
+ * displays all the existing students, and gives the option to see their details and edit them.
+ * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
+ * @version	1
+ * @since 4/1/2023
+ */
 public class ShowStudentsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     SQLiteDatabase db;
     HelperDB hlp;
@@ -72,7 +76,8 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
     }
 
     /**
-     * This function reads the students names from the table and displays them in the list view.
+     * This function reads the students ids and names from the table and displays them in the
+     * list view.
      */
     public void readStudentsData(){
         String[] columns = {STUDENT_NAME};
@@ -96,7 +101,6 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
         crsr.moveToFirst();
         while (!crsr.isAfterLast()) {
             name = crsr.getString(col1);
-
             namesTbl.add(name);
 
             crsr.moveToNext();
@@ -106,13 +110,19 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
         adp.notifyDataSetChanged();
     }
 
+    /**
+     * This function shows an alert dialog which asks the user if he wants to show the details
+     * of the chosen student - if yes, it moves to the input student activity and displays there
+     * the details.
+     * @param chosenStudentIndex The index of the chosen student.
+     */
     public void showAlertDialog(int chosenStudentIndex) {
         adb = new AlertDialog.Builder(this);
         adb.setCancelable(false);
         adb.setTitle("Show & Edit student");
         adb.setMessage("Do you want to show & edit the data of " + namesTbl.get(chosenStudentIndex) + "?");
 
-        // Saves in the database
+        // Goes to the input student activity, and displays there
         adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -122,7 +132,6 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
             }
         });
 
-        // Doesn't save
         adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -132,6 +141,20 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
 
         ad = adb.create();
         ad.show();
+    }
+
+    /**
+     * This function reacts to choosing a student from the list view - saves the student id, and
+     * asks the user if he wants to show the student(with the alert dialog).
+     * @param adapterView The adapter view of the list view
+     * @param view
+     * @param i The position of the chosen student in the list view
+     * @param l The row of the chosen student in the list view
+     */
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedStudentId = i + 1;
+        showAlertDialog(i);
     }
 
 
@@ -172,11 +195,5 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedStudentId = i + 1;
-        showAlertDialog(i);
     }
 }
