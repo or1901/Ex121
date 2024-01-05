@@ -29,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     ArrayList<Integer> idsTbl;
     int selectedStudentId, editGradeId;
     EditText etGrade, etSubject, etWorkType, etQuarter;
+    TextView tvInputGrade;
     ContentValues cv;
     AlertDialog.Builder adb;
     AlertDialog ad;
@@ -78,6 +80,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         etSubject = findViewById(R.id.etSubject);
         etWorkType = findViewById(R.id.etWorkType);
         etQuarter = findViewById(R.id.etQuarter);
+        tvInputGrade = findViewById(R.id.tvInputGrade);
 
         saveGrade = true;
 
@@ -195,7 +198,6 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
             db.close();
 
             Toast.makeText(this, "Edited grade data!", Toast.LENGTH_SHORT).show();
-            saveGrade = true;
         }
 
     }
@@ -303,11 +305,20 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         gi = getIntent();
         editGradeId = gi.getIntExtra("GradeId", -1);
 
+        resetGradeFields();
+
         if(editGradeId != -1)
         {
             saveGrade = false;
+            tvInputGrade.setText("Edit Grade");
             spinNames.setSelection(gi.getIntExtra("StudentIndex", 0));
             displayGradeFields(editGradeId);
+
+            gi.removeExtra("GradeId");
+            gi.removeExtra("StudentIndex");
+        }
+        else {
+            tvInputGrade.setText("Add Grade");
         }
     }
 
@@ -332,6 +343,8 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         int id = item.getItemId();
 
+        saveGrade = true;
+
         if(id == R.id.menuAddStudent){
             gi.setClass(this, InputStudentActivity.class);
             startActivity(gi);
@@ -348,6 +361,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         }
         else {
             resetGradeFields();
+            tvInputGrade.setText("Add Grade");
         }
 
         return super.onOptionsItemSelected(item);

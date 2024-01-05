@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -41,6 +42,7 @@ public class InputStudentActivity extends AppCompatActivity {
     HelperDB hlp;
     EditText etStudName, etAddress, etStudPhone, etHomePhone, etMomName, etMomPhone, etDadName,
             etDadPhone;
+    TextView tvInputStud;
     Switch switchActive;
     AlertDialog.Builder adb;
     AlertDialog ad;
@@ -72,6 +74,7 @@ public class InputStudentActivity extends AppCompatActivity {
         etDadName = findViewById(R.id.etDadName);
         etDadPhone = findViewById(R.id.etDadPhone);
         switchActive = findViewById(R.id.switchActive);
+        tvInputStud = findViewById(R.id.tvInputStudent);
 
         saveStudent = true;
 
@@ -164,7 +167,6 @@ public class InputStudentActivity extends AppCompatActivity {
             db.close();
 
             Toast.makeText(this, "Edited student data!", Toast.LENGTH_SHORT).show();
-            saveStudent = true;
         }
     }
 
@@ -280,8 +282,14 @@ public class InputStudentActivity extends AppCompatActivity {
 
         if(editStudentId != -1)
         {
+            tvInputStud.setText("Edit Student");
             saveStudent = false;
             displayStudentFields(editStudentId);
+
+            gi.removeExtra("StudentId");
+        }
+        else {
+            tvInputStud.setText("Add Student");
         }
     }
 
@@ -306,6 +314,8 @@ public class InputStudentActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         int id = item.getItemId();
 
+        saveStudent = true;
+
         if(id == R.id.menuAddGrade){
             si.setClass(this, InputGradeActivity.class);
             startActivity(si);
@@ -323,6 +333,7 @@ public class InputStudentActivity extends AppCompatActivity {
         else
         {
             resetStudentFields();
+            tvInputStud.setText("Add Student");
         }
 
         return super.onOptionsItemSelected(item);

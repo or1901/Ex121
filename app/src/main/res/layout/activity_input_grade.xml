@@ -24,11 +24,12 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/tvInputGrade"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="5"
             android:gravity="center"
-            android:text="Input Grade"
+            android:text="Add Grade"
             android:textSize="34sp" />
 
         <Space
