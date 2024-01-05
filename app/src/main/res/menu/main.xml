@@ -21,4 +21,9 @@
         android:title="Show Grades"
         android:orderInCategory="400"/>
 
+    <item
+        android:id="@+id/menuSortAndFilter"
+        android:title="Sort and Filter data"
+        android:orderInCategory="500"/>
+
 </menu>

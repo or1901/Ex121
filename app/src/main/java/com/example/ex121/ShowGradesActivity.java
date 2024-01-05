@@ -267,18 +267,6 @@ public class ShowGradesActivity extends AppCompatActivity implements
     }
 
     /**
-     * This function presents the options menu for moving between activities.
-     * @param menu the options menu in which you place your items.
-     * @return true in order to show the menu, otherwise false.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
      * This function saves the id and the index of the chosen student from the spinner, and displays
      * all the grades of the chosen student in the list view.
      * @param adapterView The adapter view of the spinner
@@ -314,6 +302,18 @@ public class ShowGradesActivity extends AppCompatActivity implements
     }
 
     /**
+     * This function presents the options menu for moving between activities.
+     * @param menu the options menu in which you place your items.
+     * @return true in order to show the menu, otherwise false.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
      * This function reacts to the user choice in the options menu - it moves to the chosen
      * activity from the menu.
      * @param item the menu item that was selected.
@@ -334,6 +334,11 @@ public class ShowGradesActivity extends AppCompatActivity implements
         else if(id == R.id.menuShowStudents)
         {
             gi.setClass(this, ShowStudentsActivity.class);
+            startActivity(gi);
+        }
+        else if(id == R.id.menuSortAndFilter)
+        {
+            gi.setClass(this, SortAndFilterActivity.class);
             startActivity(gi);
         }
 
