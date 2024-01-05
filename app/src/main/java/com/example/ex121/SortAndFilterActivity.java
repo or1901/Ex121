@@ -1,5 +1,17 @@
 package com.example.ex121;
 
+import static com.example.ex121.Grades.GRADE;
+import static com.example.ex121.Grades.GRADE_KEY_ID;
+import static com.example.ex121.Grades.QUARTER;
+import static com.example.ex121.Grades.STUDENT_ID;
+import static com.example.ex121.Grades.SUBJECT;
+import static com.example.ex121.Grades.TABLE_GRADES;
+import static com.example.ex121.Grades.TYPE;
+import static com.example.ex121.Students.ACTIVE;
+import static com.example.ex121.Students.STUDENT_KEY_ID;
+import static com.example.ex121.Students.STUDENT_NAME;
+import static com.example.ex121.Students.TABLE_STUDENTS;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,8 +26,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class SortAndFilterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Intent gi;
@@ -23,12 +38,16 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
     HelperDB hlp;
     Cursor crsr;
     ContentValues cv;
-    ArrayAdapter<String> adpFilterOptions;
-    Spinner spinFilterOptions;
+    ArrayAdapter<String> adpFilterOptions, adpFilterParam;
+    Spinner spinFilterOptions, spinFilterParam;
     String[] filterOptions = {"Grades of all students in a given quarter",
             "Grades of all students in a given subject",
             "All grades of a given student in a decreasing order"};
+    ArrayList<String> filterParamsTbl, namesTbl;
+    ArrayList<Integer> idsTbl;
     int selectedFilterOption;
+    String chosenParam;
+    TextView tvParamType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,26 +66,156 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         spinFilterOptions = findViewById(R.id.spinFilterOptions);
         spinFilterOptions.setOnItemSelectedListener(this);
 
+        spinFilterParam = findViewById(R.id.spinFilterParam);
+        spinFilterParam.setOnItemSelectedListener(this);
+
+        tvParamType = findViewById(R.id.tvParamType);
+
         // Inits the database
         hlp = new HelperDB(this);
         db = hlp.getWritableDatabase();
         db.close();
 
         cv = new ContentValues();
+        filterParamsTbl = new ArrayList<String>();
+        namesTbl = new ArrayList<String>();
+        idsTbl = new ArrayList<Integer>();
+
+        filterParamsTbl.add("1");
+        filterParamsTbl.add("2");
+        filterParamsTbl.add("3");
+        filterParamsTbl.add("4");
+        selectedFilterOption = 0;
 
         adpFilterOptions = new ArrayAdapter<String>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, filterOptions);
         spinFilterOptions.setAdapter(adpFilterOptions);
+
+        adpFilterParam = new ArrayAdapter<String>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, filterParamsTbl);
+        spinFilterParam.setAdapter(adpFilterParam);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        if(adapterView.getId() == R.id.spinFilterOptions) {
+            // First spinner
+            if(selectedFilterOption != i)
+            {
+                selectedFilterOption = i;
+                filterParamsTbl.clear();
 
+                switch(selectedFilterOption) {
+                    case 0:
+                        tvParamType.setText("Choose a quarter:");
+                        filterParamsTbl.add("1");
+                        filterParamsTbl.add("2");
+                        filterParamsTbl.add("3");
+                        filterParamsTbl.add("4");
+                        break;
+
+                    case 1:
+                        tvParamType.setText("Choose a subject:");
+                        readStudentsData();
+                        readAllSubjects(filterParamsTbl);
+                        break;
+
+                    case 2:
+                        tvParamType.setText("Choose a student:");
+                        readStudentsData();
+                        filterParamsTbl.addAll(namesTbl);
+                        break;
+                }
+
+                adpFilterParam.notifyDataSetChanged();
+            }
+        }
+
+        // Second spinner
+        else {
+            chosenParam = filterParamsTbl.get(i);
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    /**
+     * This function reads the students ids and names from the table and displays them in the
+     * spinner.
+     */
+    public void readStudentsData(){
+        String[] columns = {STUDENT_KEY_ID, STUDENT_NAME};
+        String selection = ACTIVE + "=?";
+        String[] selectionArgs = {"1"};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
+        int col1 = 0;
+        int col2 = 0;
+
+        int key = 0;
+        String name = "";
+        namesTbl.clear();
+        idsTbl.clear();
+
+        db = hlp.getReadableDatabase();
+        crsr = db.query(TABLE_STUDENTS, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+        col1 = crsr.getColumnIndex(STUDENT_KEY_ID);
+        col2 = crsr.getColumnIndex(STUDENT_NAME);
+
+        // Reads the names and ids
+        crsr.moveToFirst();
+        while (!crsr.isAfterLast()) {
+            key = crsr.getInt(col1);
+            name = crsr.getString(col2);
+
+            idsTbl.add(key);
+            namesTbl.add(name);
+
+            crsr.moveToNext();
+        }
+        crsr.close();
+        db.close();
+    }
+
+    public void readAllSubjects(ArrayList<String> arrayList) {
+        String[] columns = {SUBJECT};
+        String selection = STUDENT_ID + "=?";
+        String[] selectionArgs = {""};
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
+        int col1 = 0;
+        String subject = "";
+
+        db = hlp.getReadableDatabase();
+        for(int i = 0; i < idsTbl.size(); i++)
+        {
+            selectionArgs[0] = "" + idsTbl.get(i);
+            crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
+
+            col1 = crsr.getColumnIndex(SUBJECT);
+
+            // Reads each subject and adds it only once
+            crsr.moveToFirst();
+            while (!crsr.isAfterLast()) {
+                subject = crsr.getString(col1);
+
+                if(!arrayList.contains(subject)) {
+                    arrayList.add(subject);
+                }
+
+                crsr.moveToNext();
+            }
+        }
+        crsr.close();
+        db.close();
     }
 
     /**
