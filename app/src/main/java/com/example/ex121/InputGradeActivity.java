@@ -364,6 +364,11 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
             gi.setClass(this, SortAndFilterActivity.class);
             startActivity(gi);
         }
+        else if(id == R.id.menuCredits)
+        {
+            gi.setClass(this, CreditsActivity.class);
+            startActivity(gi);
+        }
         else {
             resetGradeFields();
             tvInputGrade.setText("Add Grade");

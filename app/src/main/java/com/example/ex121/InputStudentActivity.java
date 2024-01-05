@@ -335,6 +335,11 @@ public class InputStudentActivity extends AppCompatActivity {
             si.setClass(this, SortAndFilterActivity.class);
             startActivity(si);
         }
+        else if(id == R.id.menuCredits)
+        {
+            si.setClass(this, CreditsActivity.class);
+            startActivity(si);
+        }
         else
         {
             resetStudentFields();

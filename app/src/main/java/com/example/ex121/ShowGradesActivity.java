@@ -341,6 +341,11 @@ public class ShowGradesActivity extends AppCompatActivity implements
             gi.setClass(this, SortAndFilterActivity.class);
             startActivity(gi);
         }
+        else if(id == R.id.menuCredits)
+        {
+            gi.setClass(this, CreditsActivity.class);
+            startActivity(gi);
+        }
 
         return super.onOptionsItemSelected(item);
     }

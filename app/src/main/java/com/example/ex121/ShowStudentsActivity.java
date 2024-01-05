@@ -198,6 +198,11 @@ public class ShowStudentsActivity extends AppCompatActivity implements AdapterVi
             gi.setClass(this, SortAndFilterActivity.class);
             startActivity(gi);
         }
+        else if(id == R.id.menuCredits)
+        {
+            gi.setClass(this, CreditsActivity.class);
+            startActivity(gi);
+        }
 
         return super.onOptionsItemSelected(item);
     }

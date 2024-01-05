@@ -309,14 +309,22 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         if (id == R.id.menuAddStudent) {
             gi.setClass(this, InputStudentActivity.class);
             startActivity(gi);
-        } else if (id == R.id.menuAddGrade) {
+        }
+        else if (id == R.id.menuAddGrade) {
             gi.setClass(this, InputGradeActivity.class);
             startActivity(gi);
-        } else if (id == R.id.menuShowStudents) {
+        }
+        else if (id == R.id.menuShowStudents) {
             gi.setClass(this, ShowStudentsActivity.class);
             startActivity(gi);
-        } else if (id == R.id.menuShowGrades) {
+        }
+        else if (id == R.id.menuShowGrades) {
             gi.setClass(this, ShowGradesActivity.class);
+            startActivity(gi);
+        }
+        else if(id == R.id.menuCredits)
+        {
+            gi.setClass(this, CreditsActivity.class);
             startActivity(gi);
         }
 
