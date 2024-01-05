@@ -8,6 +8,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * The credits activity:
+ * displays the credits of the application.
+ * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
+ * @version	1
+ * @since 5/1/2023
+ */
 public class CreditsActivity extends AppCompatActivity {
     Intent gi;
 

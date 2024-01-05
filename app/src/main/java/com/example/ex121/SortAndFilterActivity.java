@@ -1,7 +1,6 @@
 package com.example.ex121;
 
 import static com.example.ex121.Grades.GRADE;
-import static com.example.ex121.Grades.GRADE_KEY_ID;
 import static com.example.ex121.Grades.QUARTER;
 import static com.example.ex121.Grades.STUDENT_ID;
 import static com.example.ex121.Grades.SUBJECT;
@@ -28,11 +27,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
+/**
+ * The activity of sorting and filtering grades:
+ * gives the user 3 options of sorting and filtering. According to the user's choice it displays
+ * the suitable grades in the chosen order.
+ * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
+ * @version	1
+ * @since 5/1/2023
+ */
 public class SortAndFilterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     Intent gi;
     SQLiteDatabase db;
@@ -89,6 +94,7 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
 
         selectedFilterOption = 0;
 
+        // Inits the adapters
         adpFilterOptions = new ArrayAdapter<String>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, filterOptions);
         spinFilterOptions.setAdapter(adpFilterOptions);
@@ -102,6 +108,13 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         lvFilteredData.setAdapter(adpFilteredData);
     }
 
+    /**
+     * This function reacts to the choice in each spinner.
+     * @param adapterView The adapter of the spinner in which the item is selected
+     * @param view The view object of the chosen item from the spinner
+     * @param i The index of the selected item in the spinner
+     * @param l The row of the selected item in the spinner
+     */
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         // First spinner
@@ -120,7 +133,6 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
 
                 case 1:
                     tvParamType.setText("Choose a subject:");
-                    readStudentsData();
                     readAllSubjects(filterParamsTbl);
                     break;
 
@@ -135,7 +147,6 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
                 chosenParam = filterParamsTbl.get(0);
             }
 
-
         // Second spinner
         else {
             chosenParam = filterParamsTbl.get(i);
@@ -148,8 +159,7 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
     }
 
     /**
-     * This function reads the students ids and names from the table and displays them in the
-     * spinner.
+     * This function reads the students ids and names from the table.
      */
     public void readStudentsData(){
         String[] columns = {STUDENT_KEY_ID, STUDENT_NAME};
@@ -188,6 +198,11 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         db.close();
     }
 
+    /**
+     * This function reads all the subjects of the grades that belong to active students, into a
+     * given array list.
+     * @param arrayList The array list to save the subjects into
+     */
     public void readAllSubjects(ArrayList<String> arrayList) {
         String[] columns = {SUBJECT};
         String selection = STUDENT_ID + "=?";
@@ -223,6 +238,14 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         db.close();
     }
 
+    /**
+     * This function reads the data of all the grades, filtered by given column, and ordered by
+     * given condition. The data is saved into a given array list.
+     * @param columnType The type of the column to filter by
+     * @param columnValue The value of the column to filter by
+     * @param arrayList The array list to save the filtered grades data into
+     * @param orderBy The condition to order the grades by
+     */
     public void filterGrades(String columnType, String columnValue, ArrayList<String> arrayList, String orderBy) {
         String[] columns = {GRADE, SUBJECT, TYPE, STUDENT_ID};
         String selection = columnType + "=?";
@@ -264,6 +287,11 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         db.close();
     }
 
+    /**
+     * This function displays the suitable grades in the list view, according to the chosen filter
+     * and its chosen parameter.
+     * @param view The button that was clicked in order to display the grades
+     */
     public void applyFilter(View view) {
         int chosenStudId = 0;
 
