@@ -12,9 +12,12 @@ import static com.example.ex121.Students.STUDENT_NAME;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -52,6 +55,9 @@ public class ShowGradesActivity extends AppCompatActivity implements
     ContentValues cv;
     int selectedStudentId, selectedStudentIndex, selectedGradeId;
     ListView lvGrades;
+    AlertDialog.Builder adb;
+    AlertDialog ad;
+    Context activityContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +67,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
         gi = getIntent();
         initAll();
         readStudentsData();
+        activityContext = this;
     }
 
     /**
@@ -197,32 +204,54 @@ public class ShowGradesActivity extends AppCompatActivity implements
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle("Grade Actions");
         menu.add("Show & Edit");
-        menu.add("Delete Grade");
+        menu.add("Delete");
     }
 
     /**
-     * This function reacts to the choice from the context menu of actions on the chosen grade.
+     * This function reacts to the choice from the context menu of actions on the chosen grade -
+     * it validates the choice with alert dialog, and performs the desired action.
      * @param item The menu
      * @return true for the menu to react, false otherwise.
      */
     public boolean onContextItemSelected(MenuItem item) {
         String action = item.getTitle().toString();
 
-        if(action.equals("Show & Edit"))
-        {
-            // Goes to the input grade activity and displays there
-            gi.setClass(this, InputGradeActivity.class);
-            gi.putExtra("StudentIndex", selectedStudentIndex);
-            gi.putExtra("GradeId", selectedGradeId);
-            startActivity(gi);
-        }
-        else
-        {
-            // Deletes the chosen grade
-            deleteGrade(selectedGradeId);
-            gradesTbl.remove(selectedGradeId - 1);
-            lvAdp.notifyDataSetChanged();
-        }
+        adb = new AlertDialog.Builder(this);
+        adb.setCancelable(false);
+        adb.setTitle("Perform action on grade");
+        adb.setMessage("Are you sure you want to " + action + " the grade?");
+
+        // Validates the choice with the user
+        adb.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(action.equals("Show & Edit"))
+                {
+                    // Goes to the input grade activity and displays there
+                    gi.setClass(activityContext, InputGradeActivity.class);
+                    gi.putExtra("StudentIndex", selectedStudentIndex);
+                    gi.putExtra("GradeId", selectedGradeId);
+                    startActivity(gi);
+                }
+                else
+                {
+                    // Deletes the chosen grade
+                    deleteGrade(selectedGradeId);
+                    gradesTbl.remove(selectedGradeId - 1);
+                    lvAdp.notifyDataSetChanged();
+                }
+            }
+        });
+
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        ad = adb.create();
+        ad.show();
 
         return super.onContextItemSelected(item);
     }
