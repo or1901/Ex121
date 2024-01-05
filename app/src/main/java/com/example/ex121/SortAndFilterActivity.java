@@ -247,7 +247,7 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
      * @param orderBy The condition to order the grades by
      */
     public void filterGrades(String columnType, String columnValue, ArrayList<String> arrayList, String orderBy) {
-        String[] columns = {GRADE, SUBJECT, TYPE, STUDENT_ID};
+        String[] columns = {GRADE, SUBJECT, TYPE, STUDENT_ID, QUARTER};
         String selection = columnType + "=?";
         String[] selectionArgs = {columnValue};
         String groupBy = null;
@@ -257,9 +257,11 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         int col2 = 0;
         int col3 = 0;
         int col4 = 0;
+        int col5 = 0;
 
-        int grade = 0, studId = 0;
+        int grade = 0, studId = 0, quarter = 0;
         String subject = "", type = "", studName = "";
+        String allGradeData = "";
 
         db = hlp.getReadableDatabase();
         crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
@@ -268,6 +270,7 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
         col2 = crsr.getColumnIndex(SUBJECT);
         col3 = crsr.getColumnIndex(TYPE);
         col4 = crsr.getColumnIndex(STUDENT_ID);
+        col5 = crsr.getColumnIndex(QUARTER);
 
         // Reads the grade's data
         crsr.moveToFirst();
@@ -276,10 +279,22 @@ public class SortAndFilterActivity extends AppCompatActivity implements AdapterV
             subject = crsr.getString(col2);
             type = crsr.getString(col3);
             studId = crsr.getInt(col4);
+            quarter = crsr.getInt(col5);
 
             studName = namesTbl.get(idsTbl.indexOf(studId));
 
-            arrayList.add(subject + "(" + type + "), " + grade + " - " + studName);
+            // Decides which grade data to save
+            if(columnType.equals(QUARTER)) {
+                allGradeData = subject + "(" + type + "): " + grade + " - " + studName;
+            }
+            else if(columnType.equals(SUBJECT)) {
+                allGradeData = type + "(Quarter " + quarter + "): " + grade + " - " + studName;
+            }
+            else {
+                allGradeData = subject + "(" + type + "): Quarter " + quarter + ", " + grade;
+            }
+
+            arrayList.add(allGradeData);
 
             crsr.moveToNext();
         }
