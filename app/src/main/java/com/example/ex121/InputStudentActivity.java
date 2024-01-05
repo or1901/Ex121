@@ -13,7 +13,6 @@ import static com.example.ex121.Students.STUDENT_PHONE;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,7 +30,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 /**
- * The student input activity:
+ * The students input activity:
  * inputs the data of the students to the table.
  * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
  * @version	1
@@ -150,7 +149,7 @@ public class InputStudentActivity extends AppCompatActivity {
 
         if(saveNeed)
         {
-            // Inserts the data to the table
+            // Adds new student
             db = hlp.getWritableDatabase();
             db.insert(Students.TABLE_STUDENTS, null, cv);
             db.close();
@@ -159,7 +158,7 @@ public class InputStudentActivity extends AppCompatActivity {
         }
         else
         {
-            // Edits the data in the table
+            // Edits existing student
             db = hlp.getWritableDatabase();
             db.update(TABLE_STUDENTS, cv, STUDENT_KEY_ID+"=?", new String[]{"" + editStudentId});
             db.close();

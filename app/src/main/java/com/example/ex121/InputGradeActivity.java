@@ -8,15 +8,8 @@ import static com.example.ex121.Grades.SUBJECT;
 import static com.example.ex121.Grades.TABLE_GRADES;
 import static com.example.ex121.Grades.TYPE;
 import static com.example.ex121.Students.ACTIVE;
-import static com.example.ex121.Students.ADDRESS;
-import static com.example.ex121.Students.FATHER_NAME;
-import static com.example.ex121.Students.FATHER_PHONE;
-import static com.example.ex121.Students.HOME_PHONE;
-import static com.example.ex121.Students.MOTHER_NAME;
-import static com.example.ex121.Students.MOTHER_PHONE;
 import static com.example.ex121.Students.STUDENT_KEY_ID;
 import static com.example.ex121.Students.STUDENT_NAME;
-import static com.example.ex121.Students.STUDENT_PHONE;
 import static com.example.ex121.Students.TABLE_STUDENTS;
 
 import androidx.annotation.NonNull;
@@ -40,6 +33,13 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+/**
+ * The grades input activity:
+ * inputs the data of the grades to the table.
+ * @author Ori Roitzaid <or1901 @ bs.amalnet.k12.il>
+ * @version	1
+ * @since 25/12/2023
+ */
 public class InputGradeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     SQLiteDatabase db;
     HelperDB hlp;
@@ -70,6 +70,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
      * This function initializes the views and the database.
      */
     private void initAll() {
+        // Inits the views
         spinNames = findViewById(R.id.spinnerNames);
         spinNames.setOnItemSelectedListener(this);
 
@@ -148,9 +149,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
+    public void onNothingSelected(AdapterView<?> adapterView) {}
 
     /**
      * This function checks if all the fields of the grade are full, and asks the user if he wants
@@ -167,7 +166,9 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
     }
 
     /**
-     * This function saves the values of current grade in the database grades table.
+     * This function saves the values of current grade in the database grades table -
+     * according to the parameter it knows if to add a new record, or edit an existing one.
+     * @param saveNeed Whether to add a new record of grade, or to edit an existing one.
      */
     public void saveFieldsToDb(boolean saveNeed) {
         cv.clear();
@@ -179,8 +180,8 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         cv.put(Grades.TYPE, etWorkType.getText().toString());
         cv.put(Grades.QUARTER, Integer.parseInt(etQuarter.getText().toString()));
 
-
         if(saveNeed) {
+            // Adds new grade
             db = hlp.getWritableDatabase();
             db.insert(TABLE_GRADES, null, cv);
             db.close();
@@ -188,7 +189,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
             Toast.makeText(this, "Added new grade!", Toast.LENGTH_SHORT).show();
         }
         else {
-            // Edits the data in the table
+            // Edits existing grade
             db = hlp.getWritableDatabase();
             db.update(TABLE_GRADES, cv, GRADE_KEY_ID+"=?", new String[]{"" + editGradeId});
             db.close();
@@ -240,6 +241,10 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
                 (etQuarter.getText().toString().equals(""));
     }
 
+    /**
+     * This function displays the data of a given grade in the edit texts.
+     * @param gradeId The id of the grade to display.
+     */
     public void displayGradeFields(int gradeId){
         String[] columns = {GRADE, SUBJECT, TYPE, QUARTER};
         String selection = GRADE_KEY_ID + "=?";
@@ -256,11 +261,13 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         db = hlp.getReadableDatabase();
         crsr = db.query(TABLE_GRADES, columns, selection, selectionArgs, groupBy, having, orderBy);
 
+        // Saves the cols index
         col1 = crsr.getColumnIndex(GRADE);
         col2 = crsr.getColumnIndex(SUBJECT);
         col3 = crsr.getColumnIndex(TYPE);
         col4 = crsr.getColumnIndex(QUARTER);
 
+        // Reads and displays the grade data
         crsr.moveToFirst();
         while (!crsr.isAfterLast()) {
             etGrade.setText(crsr.getString(col1));
@@ -274,12 +281,34 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         db.close();
     }
 
+    /**
+     * This function resets the edit texts of the grade fields.
+     */
     public void resetGradeFields() {
         etGrade.setText("");
         etSubject.setText("");
         etWorkType.setText("");
         etQuarter.setText("");
         spinNames.setSelection(0);
+    }
+
+    /**
+     * This function checks if the intent has returned with a grade id. If so - it displays the
+     * data of the given grade on the screen, and sets the spinner to the suitable student.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        gi = getIntent();
+        editGradeId = gi.getIntExtra("GradeId", -1);
+
+        if(editGradeId != -1)
+        {
+            saveGrade = false;
+            spinNames.setSelection(gi.getIntExtra("StudentIndex", 0));
+            displayGradeFields(editGradeId);
+        }
     }
 
     /**
@@ -296,7 +325,7 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
 
     /**
      * This function reacts to the user choice in the options menu - it moves to the chosen
-     * activity from the menu.
+     * activity from the menu, or resets the current one.
      * @param item the menu item that was selected.
      * @return must return true for the menu to react.
      */
@@ -322,20 +351,5 @@ public class InputGradeActivity extends AppCompatActivity implements AdapterView
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        gi = getIntent();
-        editGradeId = gi.getIntExtra("GradeId", -1);
-
-        if(editGradeId != -1)
-        {
-            saveGrade = false;
-            spinNames.setSelection(gi.getIntExtra("StudentIndex", 0));
-            displayGradeFields(editGradeId);
-        }
     }
 }
