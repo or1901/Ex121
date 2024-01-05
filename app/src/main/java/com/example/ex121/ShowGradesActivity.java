@@ -53,7 +53,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     ArrayList<String> namesTbl, gradesTbl;
     ArrayList<Integer> studentsIdsTbl, gradesIdsTbl;
     ContentValues cv;
-    int selectedStudentId, selectedStudentIndex, selectedGradeId;
+    int selectedStudentId, selectedStudentIndex, selectedGradeId, selectedGradeIndex;
     ListView lvGrades;
     AlertDialog.Builder adb;
     AlertDialog ad;
@@ -237,7 +237,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
                 {
                     // Deletes the chosen grade
                     deleteGrade(selectedGradeId);
-                    gradesTbl.remove(selectedGradeId - 1);
+                    gradesTbl.remove(selectedGradeIndex);
                     lvAdp.notifyDataSetChanged();
                 }
             }
@@ -297,6 +297,7 @@ public class ShowGradesActivity extends AppCompatActivity implements
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
         selectedGradeId = gradesIdsTbl.get(i);
+        selectedGradeIndex = i;
 
         return false;
     }
